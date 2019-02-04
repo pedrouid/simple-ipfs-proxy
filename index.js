@@ -29,7 +29,6 @@ const getFile = ipfsHash => {
       const result = [];
       files.forEach(file => {
         const hex = file.content.toString("hex");
-        console.log("hex", hex);
         result.push(hex);
       });
       if (result.length) {
@@ -54,7 +53,6 @@ server.get("/hello", (req, res) => {
 
 server.get("/ipfs/:ipfsHash", async (req, res) => {
   const { ipfsHash } = req.params;
-  console.log("GET ipfsHash", ipfsHash);
   const result = await getFile(ipfsHash);
   res.status(200).send(result);
 });
@@ -77,8 +75,5 @@ server.ready(() => {
 
 server.listen(config.port, error => {
   if (error) {
-    return console.log("Something went wrong", error);
   }
-
-  console.log("Server listening on port", config.port);
 });
