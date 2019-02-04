@@ -4,26 +4,70 @@ const IPFS = require("ipfs");
 const config = require("./config");
 
 let node = null;
+
 let IPFS_READY = false;
 let IPFS_VERSION = null;
 
-const app = fastify({ logger: config.debug });
+const IPFS_OPTIONS = {
+  EXPERIMENTAL: { pubsub: true },
+  repo: "ipfs_data",
+  config: {
+    Addresses: {
+      Swarm: [
+        "/dns4/ws-star.discovery.libp2p.io/tcp/443/wss/p2p-websocket-star"
+      ]
+    }
+  }
+};
 
-app.register(Helmet);
+const getFile = ipfsHash => {
+  return new Promise((resolve, reject) => {
+    node.get(ipfsHash, (err, files) => {
+      if (err) {
+        reject(err);
+      }
+      const result = [];
+      files.forEach(file => {
+        const hex = file.content.toString("hex");
+        console.log("hex", hex);
+        result.push(hex);
+      });
+      if (result.length) {
+        if (result.length === 1) {
+          resolve(result[0]);
+        } else {
+          resolve(result);
+        }
+      }
+      resolve(null);
+    });
+  });
+};
 
-app.get("/hello", (req, res) => {
+const server = fastify({ logger: config.debug });
+
+server.register(Helmet);
+
+server.get("/hello", (req, res) => {
   res.status(200).send(`Hello World`);
 });
 
-app.get("/status", async (req, res) => {
+server.get("/ipfs/:ipfsHash", async (req, res) => {
+  const { ipfsHash } = req.params;
+  console.log("GET ipfsHash", ipfsHash);
+  const result = await getFile(ipfsHash);
+  res.status(200).send(result);
+});
+
+server.get("/status", (req, res) => {
   res.status(200).send({
     ready: IPFS_READY,
     version: IPFS_VERSION
   });
 });
 
-app.ready(() => {
-  node = new IPFS();
+server.ready(() => {
+  node = new IPFS(IPFS_OPTIONS);
   node.on("ready", async () => {
     const version = await node.version();
     IPFS_READY = true;
@@ -31,7 +75,7 @@ app.ready(() => {
   });
 });
 
-app.listen(config.port, error => {
+server.listen(config.port, error => {
   if (error) {
     return console.log("Something went wrong", error);
   }
