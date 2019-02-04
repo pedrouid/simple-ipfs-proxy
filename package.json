@@ -10,6 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "fastify": "^1.13.4",
+    "fastify-helmet": "^3.0.0",
     "ipfs": "^0.34.4"
   }
 }
