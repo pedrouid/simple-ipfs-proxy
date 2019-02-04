@@ -28,8 +28,8 @@ const getFile = ipfsHash => {
       }
       const result = [];
       files.forEach(file => {
-        const hex = file.content.toString("hex");
-        result.push(hex);
+        const base64 = file.content.toString("base64");
+        result.push(base64);
       });
       if (result.length) {
         if (result.length === 1) {
