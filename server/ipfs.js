@@ -1,3 +1,5 @@
+const IPFS = require("ipfs");
+
 let node = null;
 
 let IPFS_READY = false;
@@ -5,7 +7,7 @@ let IPFS_VERSION = null;
 
 const IPFS_OPTIONS = {
   EXPERIMENTAL: { pubsub: true },
-  repo: "ipfs_data/ipfs",
+  repo: "../ipfs_data/ipfs",
   config: {
     Addresses: {
       Swarm: [
@@ -23,6 +25,11 @@ const initIPFS = () => {
     IPFS_VERSION = version.version;
   });
 };
+
+const getStatus = () => ({
+  ready: IPFS_READY,
+  version: IPFS_VERSION
+});
 
 const getFile = ipfsHash => {
   return new Promise((resolve, reject) => {
@@ -48,8 +55,7 @@ const getFile = ipfsHash => {
 };
 
 module.exports = {
-  IPFS_READY,
-  IPFS_VERSION,
   initIPFS,
+  getStatus,
   getFile
 };
